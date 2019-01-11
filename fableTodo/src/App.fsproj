@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="app.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Fable.Core" Version="2.0.3" />
+    <PackageReference Include="Fable.Elmish.Browser" Version="2.1.0" />
+    <PackageReference Include="Fable.Elmish.Debugger" Version="2.0.2" />
+    <PackageReference Include="Fable.Elmish.React" Version="2.1.0" />
+    <PackageReference Include="Thoth.Json" Version="2.5.0" />
+  </ItemGroup>  
+
+  <!-- The tools reference -->
+  <!-- <ItemGroup>
+    <DotNetCliToolReference Include="dotnet-fable" Version="2.0.11" />
+  </ItemGroup> -->
+
+</Project>
