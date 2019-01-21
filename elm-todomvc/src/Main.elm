@@ -27,7 +27,7 @@ main : Program (Maybe Model) Model Msg
 main =
     Browser.document
         { init = init
-        , view = \model -> { title = "Elm • TodoMVC", body = [view model] }
+        , view = \model -> { title = "Elm • TodoMVC", body = [ view model ] }
         , update = updateWithStorage
         , subscriptions = \_ -> Sub.none
         }
@@ -52,9 +52,9 @@ updateWithStorage msg model =
 
 
 -- MODEL
-
-
 -- The full application state of our todo app.
+
+
 type alias Model =
     { entries : List Entry
     , field : String
@@ -91,9 +91,9 @@ newEntry desc id =
 
 init : Maybe Model -> ( Model, Cmd Msg )
 init maybeModel =
-  ( Maybe.withDefault emptyModel maybeModel
-  , Cmd.none
-  )
+    ( Maybe.withDefault emptyModel maybeModel
+    , Cmd.none
+    )
 
 
 
@@ -119,6 +119,8 @@ type Msg
 
 
 -- How we update our Model on a given Msg?
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -154,9 +156,9 @@ update msg model =
                 focus =
                     Dom.focus ("todo-" ++ String.fromInt id)
             in
-            ( { model | entries = List.map updateEntry model.entries }
-            , Task.attempt (\_ -> NoOp) focus
-            )
+                ( { model | entries = List.map updateEntry model.entries }
+                , Task.attempt (\_ -> NoOp) focus
+                )
 
         UpdateEntry id task ->
             let
@@ -166,9 +168,9 @@ update msg model =
                     else
                         t
             in
-            ( { model | entries = List.map updateEntry model.entries }
-            , Cmd.none
-            )
+                ( { model | entries = List.map updateEntry model.entries }
+                , Cmd.none
+                )
 
         Delete id ->
             ( { model | entries = List.filter (\t -> t.id /= id) model.entries }
@@ -188,18 +190,18 @@ update msg model =
                     else
                         t
             in
-            ( { model | entries = List.map updateEntry model.entries }
-            , Cmd.none
-            )
+                ( { model | entries = List.map updateEntry model.entries }
+                , Cmd.none
+                )
 
         CheckAll isCompleted ->
             let
                 updateEntry t =
                     { t | completed = isCompleted }
             in
-            ( { model | entries = List.map updateEntry model.entries }
-            , Cmd.none
-            )
+                ( { model | entries = List.map updateEntry model.entries }
+                , Cmd.none
+                )
 
         ChangeVisibility visibility ->
             ( { model | visibility = visibility }
