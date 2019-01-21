@@ -12,6 +12,15 @@ This clean division of concerns is a core part of Elm. You can read more about
 this in <http://guide.elm-lang.org/architecture/index.html>
 -}
 
+{-
+
+   Packages
+
+   - Elm packages are installed once and cached in ~/.elm
+   - New packages can be added to a project using `elm install`
+
+-}
+
 import Browser
 import Browser.Dom as Dom
 import Html exposing (..)
