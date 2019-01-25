@@ -1,15 +1,12 @@
 port module Main exposing (..)
 
-{-| TodoMVC implemented in Elm, using plain HTML and CSS for rendering.
+{-
 
-This application is broken up into three key parts:
+   Packages
 
-  1. Model  - a full definition of the application's state
-  2. Update - a way to step the application state forward
-  3. View   - a way to visualize our application state with HTML
+   - Elm packages are installed once and cached in ~/.elm
+   - New packages can be added to a project using `elm install`
 
-This clean division of concerns is a core part of Elm. You can read more about
-this in <http://guide.elm-lang.org/architecture/index.html>
 -}
 
 import Browser
@@ -27,10 +24,21 @@ main : Program (Maybe Model) Model Msg
 main =
     Browser.document
         { init = init
-        , view = \model -> { title = "Elm • TodoMVC", body = [view model] }
+        , view = \model -> { title = "Elm • TodoMVC", body = [ view model ] }
         , update = updateWithStorage
         , subscriptions = \_ -> Sub.none
         }
+
+
+
+{-
+
+   Ports
+
+   - Allow you to send commands to the Javascript runtime.
+   - Answer to the question: "how to I use library X.js in my Elm app?"
+
+-}
 
 
 port setStorage : Model -> Cmd msg
@@ -54,7 +62,9 @@ updateWithStorage msg model =
 -- MODEL
 
 
--- The full application state of our todo app.
+{-| Identical to the F# approach, which makes sense because they follow a
+similar architecture pattern.
+-}
 type alias Model =
     { entries : List Entry
     , field : String
@@ -80,6 +90,13 @@ emptyModel =
     }
 
 
+{-|
+  A key difference between the two implementations is that the function
+  signatures are made explicit in the Elm code, while the F#
+  version leaves them out.
+
+  Function signatures in Elm are a convention, not a requirement.
+-}
 newEntry : String -> Int -> Entry
 newEntry desc id =
     { description = desc
@@ -91,18 +108,17 @@ newEntry desc id =
 
 init : Maybe Model -> ( Model, Cmd Msg )
 init maybeModel =
-  ( Maybe.withDefault emptyModel maybeModel
-  , Cmd.none
-  )
+    ( Maybe.withDefault emptyModel maybeModel
+    , Cmd.none
+    )
 
 
 
 -- UPDATE
 
 
-{-| Users of our app can trigger messages by clicking and typing. These
-messages are fed into the `update` function as they occur, letting us react
-to them.
+{-| Messages are the same in both implementations.
+Different syntax in the way the types are declared, but basically the same thing.
 -}
 type Msg
     = NoOp
@@ -117,10 +133,9 @@ type Msg
     | ChangeVisibility String
 
 
-
--- How we update our Model on a given Msg?
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
+    {- case of = match with -}
     case msg of
         NoOp ->
             ( model, Cmd.none )
@@ -133,12 +148,14 @@ update msg model =
                     if String.isEmpty model.field then
                         model.entries
                     else
+                        {- ++ = @ -}
                         model.entries ++ [ newEntry model.field model.uid ]
               }
             , Cmd.none
             )
 
         UpdateField str ->
+            {- | = with -}
             ( { model | field = str }
             , Cmd.none
             )
@@ -151,12 +168,13 @@ update msg model =
                     else
                         t
 
+                {- Dom is part of the Browser package -}
                 focus =
                     Dom.focus ("todo-" ++ String.fromInt id)
             in
-            ( { model | entries = List.map updateEntry model.entries }
-            , Task.attempt (\_ -> NoOp) focus
-            )
+                ( { model | entries = List.map updateEntry model.entries }
+                , Task.attempt (\_ -> NoOp) focus
+                )
 
         UpdateEntry id task ->
             let
@@ -166,9 +184,9 @@ update msg model =
                     else
                         t
             in
-            ( { model | entries = List.map updateEntry model.entries }
-            , Cmd.none
-            )
+                ( { model | entries = List.map updateEntry model.entries }
+                , Cmd.none
+                )
 
         Delete id ->
             ( { model | entries = List.filter (\t -> t.id /= id) model.entries }
@@ -188,18 +206,18 @@ update msg model =
                     else
                         t
             in
-            ( { model | entries = List.map updateEntry model.entries }
-            , Cmd.none
-            )
+                ( { model | entries = List.map updateEntry model.entries }
+                , Cmd.none
+                )
 
         CheckAll isCompleted ->
             let
                 updateEntry t =
                     { t | completed = isCompleted }
             in
-            ( { model | entries = List.map updateEntry model.entries }
-            , Cmd.none
-            )
+                ( { model | entries = List.map updateEntry model.entries }
+                , Cmd.none
+                )
 
         ChangeVisibility visibility ->
             ( { model | visibility = visibility }
@@ -209,6 +227,7 @@ update msg model =
 
 
 -- VIEW
+{- Elm has it's own HTML interface built into the language. -}
 
 
 view : Model -> Html Msg
@@ -219,6 +238,11 @@ view model =
         ]
         [ section
             [ class "todoapp" ]
+            {-
+               lazy tells Elm to only re-build virtual DOM nodes if the
+               function (e.g. viewInput) or the one of the arguments
+               (e.g. model.field) has changed
+            -}
             [ lazy viewInput model.field
             , lazy2 viewEntries model.visibility model.entries
             , lazy2 viewControls model.visibility model.entries
