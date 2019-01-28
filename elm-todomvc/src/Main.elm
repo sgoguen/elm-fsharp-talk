@@ -57,10 +57,8 @@ updateWithStorage msg model =
         , Cmd.batch [ setStorage newModel, cmds ]
         )
 
-
-
+---------------------------------------
 -- MODEL
-
 
 {-| Identical to the F# approach, which makes sense because they follow a
 similar architecture pattern.
@@ -72,7 +70,6 @@ type alias Model =
     , visibility : String
     }
 
-
 type alias Entry =
     { description : String
     , completed : Bool
@@ -80,7 +77,9 @@ type alias Entry =
     , id : Int
     }
 
+---------------------------------------
 
+-- Define a single instance of an empty todo list
 emptyModel : Model
 emptyModel =
     { entries = []
@@ -91,9 +90,9 @@ emptyModel =
 
 
 {-|
-  A key difference between the two implementations is that the function
-  signatures are made explicit in the Elm code, while the F#
-  version leaves them out.
+  A key difference between the two implementations is 
+  that the function signatures are made explicit in the 
+  Elm code, while the F# version leaves them out.
 
   Function signatures in Elm are a convention, not a requirement.
 -}
@@ -112,13 +111,14 @@ init maybeModel =
     , Cmd.none
     )
 
-
+---------------------------------------
 
 -- UPDATE
 
 
 {-| Messages are the same in both implementations.
-Different syntax in the way the types are declared, but basically the same thing.
+Different syntax in the way the types are declared, 
+but basically the same thing.
 -}
 type Msg
     = NoOp
@@ -131,6 +131,8 @@ type Msg
     | Check Int Bool
     | CheckAll Bool
     | ChangeVisibility String
+
+
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -225,6 +227,7 @@ update msg model =
             )
 
 
+---------------------------------------
 
 -- VIEW
 {- Elm has it's own HTML interface built into the language. -}

@@ -60,8 +60,4 @@
     3. Install the SAFE Stack project template with `dotnet new -i SAFE`    
     4. Create the project with `dotnet new SAFE`
 
-    
-
-    
-
 -----------------------------------------------------------

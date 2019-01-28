@@ -16,25 +16,45 @@ let [<Literal>] ACTIVE_TODOS = "active"
 let [<Literal>] COMPLETED_TODOS = "completed"
 
 
+//-------------------------------------
 // MODEL
+
+(* The first difference in F# is types typically
+   must be declared before they're used.  
+*)
 type Entry =
     { description : string
       completed : bool
       editing : bool
       id : int }
 
-// The full application state of our todo app.
+
 type Model = 
     { entries : Entry list
       field : string
       uid : int
       visibility : string }
 
+
+//-------------------------------------
+
+// Define a single instance of an empty todo list
 let emptyModel =
     { entries = []
       visibility = ALL_TODOS
       field = ""
-      uid = 0 }
+      uid = 0 
+    }
+
+
+
+(*
+F# allows for type inferencing, but the tools
+often let you see what types have been inferred.
+The comment below to the right is part of the F#
+editor for VS Code.  You can also hover over 
+variables.
+*)
 
 let newEntry desc id =
   { description = desc
@@ -43,17 +63,22 @@ let newEntry desc id =
     id = id }
 
 
+
+
 let init = function
   | Some savedModel -> savedModel, []
   | _ -> emptyModel, []
 
 
+
+//-------------------------------------
+
 // UPDATE
 
 
-(** Users of our app can trigger messages by clicking and typing. These
-messages are fed into the `update` function as they occur, letting us react
-to them.
+(** Users of our app can trigger messages by clicking
+ and typing. These messages are fed into the `update`
+ function as they occur, letting us react to them.
 *)
 type Msg =
     | Failure of string
@@ -63,7 +88,7 @@ type Msg =
     | Add
     | Delete of int
     | DeleteComplete
-    | Check of int*bool
+    | Check of int * bool
     | CheckAll of bool
     | ChangeVisibility of string
 
@@ -77,45 +102,91 @@ let update (msg:Msg) (model:Model) : Model*Cmd<Msg>=
         model, []
 
     | Add ->
-        let xs = if System.String.IsNullOrEmpty model.field then
-                    model.entries
-                 else
-                    model.entries @ [newEntry model.field model.uid]
+        let xs = 
         { model with
             uid = model.uid + 1
             field = ""
-            entries = xs }, []
+            entries = 
+                if System.String.IsNullOrEmpty model.field then
+                    model.entries
+                else
 
+                    model.entries @ [newEntry model.field model.uid]            
+        }, []
+
+    
+    
     | UpdateField str ->
       { model with field = str }, []
 
+    
+    
+    
     | EditingEntry (id,isEditing) ->
         let updateEntry t =
-          if t.id = id then { t with editing = isEditing } else t
-        { model with entries = List.map updateEntry model.entries }, []
+          if t.id = id then 
+            { t with editing = isEditing } 
+          else 
+            t
+        { model with 
+            entries = 
+              List.map updateEntry model.entries }, []
 
+    
+    
+    
+    
+    
+    
     | UpdateEntry (id,task) ->
         let updateEntry t =
           if t.id = id then { t with description = task } else t
         { model with entries = List.map updateEntry model.entries }, []
 
+
+
+
+
+
+
+
     | Delete id ->
         { model with entries = List.filter (fun t -> t.id <> id) model.entries }, []
 
+    
+    
     | DeleteComplete ->
         { model with entries = List.filter (fun t -> not t.completed) model.entries }, []
 
+    
+    
     | Check (id,isCompleted) ->
         let updateEntry t =
           if t.id = id then { t with completed = isCompleted } else t
         { model with entries = List.map updateEntry model.entries }, []
 
+
+
+
+
+
+
+
     | CheckAll isCompleted ->
         let updateEntry t = { t with completed = isCompleted }
         { model with entries = List.map updateEntry model.entries }, []
 
+
+
+
+
+
     | ChangeVisibility visibility ->
         { model with visibility = visibility }, []
+
+
+
+
 
 // Local storage interface
 module S =
@@ -161,12 +232,17 @@ let viewInput (model:string) dispatch =
         R.input [
             ClassName "new-todo"
             Placeholder "What needs to be done?"
+            AutoFocus true
             valueOrDefault model
             onEnter Add dispatch
             OnChange (fun (ev:React.FormEvent) -> !!ev.target?value |> UpdateField |> dispatch)
-            AutoFocus true
         ]
     ]
+
+
+
+
+
 
 let internal classList classes =
     classes
@@ -294,6 +370,7 @@ let infoFooter =
           R.a [ Href "http://todomvc.com" ] [ R.str "TodoMVC" ]]
     ]
 
+//  In addition to the model, the F#
 let view model dispatch =
   R.div
     [ ClassName "todomvc-wrapper"]
@@ -303,6 +380,11 @@ let view model dispatch =
           lazyView3 viewEntries model.visibility model.entries dispatch
           lazyView3 viewControls model.visibility model.entries dispatch ]
       infoFooter ]
+
+
+
+
+//-------------------------------------
 
 open Elmish.Debug
 // App
