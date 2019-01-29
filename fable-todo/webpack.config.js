@@ -18,7 +18,12 @@ module.exports = {
     module: {
         rules: [{
             test: /\.fs(x|proj)?$/,
-            use: "fable-loader"
+            use: {
+                loader: "fable-loader",
+                options: {
+                    define: ["DEBUG"]
+                }
+            }
         }]
     }
 }
