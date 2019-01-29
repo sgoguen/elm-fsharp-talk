@@ -1,13 +1,25 @@
-﻿(**
+﻿
+
+(**
  - title: Todo MVC
  - tagline: The famous todo mvc ported from elm-todomvc
 *)
+
+
+
+
 
 module App
 
 open Fable.Core
 open Fable.Import
 open Elmish
+
+
+
+
+
+//  Notice the F# program begins at the bottom
 
 let [<Literal>] ESC_KEY = 27.
 let [<Literal>] ENTER_KEY = 13.
@@ -22,18 +34,21 @@ let [<Literal>] COMPLETED_TODOS = "completed"
 (* The first difference in F# is types typically
    must be declared before they're used.  
 *)
-type Entry =
+type Model = 
+    { entries : Entry list
+      field : string
+      uid : int
+      visibility : string }
+
+//  The and keyword allows you to reorder it (Why?)
+and Entry =
     { description : string
       completed : bool
       editing : bool
       id : int }
 
 
-type Model = 
-    { entries : Entry list
-      field : string
-      uid : int
-      visibility : string }
+
 
 
 //-------------------------------------
@@ -66,8 +81,8 @@ let newEntry desc id =
 
 
 let init = function
-  | Some savedModel -> savedModel, []
-  | _ -> emptyModel, []
+  | Some(savedModel) -> (savedModel, [])
+  | _ -> (emptyModel, [])
 
 
 
@@ -95,15 +110,14 @@ type Msg =
 
 
 // How we update our Model on a given Msg?
-let update (msg:Msg) (model:Model) : Model*Cmd<Msg>=
+let update (msg:Msg) (model:Model) : (Model * Cmd<Msg>) =
     match msg with
     | Failure err ->
         Fable.Import.Browser.console.error(err)
-        model, []
+        (model, [])
 
     | Add ->
-        let xs = 
-        { model with
+        ({ model with
             uid = model.uid + 1
             field = ""
             entries = 
@@ -112,12 +126,12 @@ let update (msg:Msg) (model:Model) : Model*Cmd<Msg>=
                 else
 
                     model.entries @ [newEntry model.field model.uid]            
-        }, []
+        }, [])
 
     
     
     | UpdateField str ->
-      { model with field = str }, []
+        ({ model with field = str }, [])
 
     
     
@@ -128,9 +142,9 @@ let update (msg:Msg) (model:Model) : Model*Cmd<Msg>=
             { t with editing = isEditing } 
           else 
             t
-        { model with 
+        ({ model with 
             entries = 
-              List.map updateEntry model.entries }, []
+              List.map updateEntry model.entries }, [])
 
     
     
@@ -141,7 +155,7 @@ let update (msg:Msg) (model:Model) : Model*Cmd<Msg>=
     | UpdateEntry (id,task) ->
         let updateEntry t =
           if t.id = id then { t with description = task } else t
-        { model with entries = List.map updateEntry model.entries }, []
+        ({ model with entries = List.map updateEntry model.entries }, [])
 
 
 
@@ -151,19 +165,19 @@ let update (msg:Msg) (model:Model) : Model*Cmd<Msg>=
 
 
     | Delete id ->
-        { model with entries = List.filter (fun t -> t.id <> id) model.entries }, []
+        ({ model with entries = List.filter (fun t -> t.id <> id) model.entries }, [])
 
     
     
     | DeleteComplete ->
-        { model with entries = List.filter (fun t -> not t.completed) model.entries }, []
+        ({ model with entries = List.filter (fun t -> not t.completed) model.entries }, [])
 
     
     
     | Check (id,isCompleted) ->
         let updateEntry t =
           if t.id = id then { t with completed = isCompleted } else t
-        { model with entries = List.map updateEntry model.entries }, []
+        ({ model with entries = List.map updateEntry model.entries }, [])
 
 
 
@@ -174,7 +188,7 @@ let update (msg:Msg) (model:Model) : Model*Cmd<Msg>=
 
     | CheckAll isCompleted ->
         let updateEntry t = { t with completed = isCompleted }
-        { model with entries = List.map updateEntry model.entries }, []
+        ({ model with entries = List.map updateEntry model.entries }, [])
 
 
 
@@ -182,11 +196,11 @@ let update (msg:Msg) (model:Model) : Model*Cmd<Msg>=
 
 
     | ChangeVisibility visibility ->
-        { model with visibility = visibility }, []
+        ({ model with visibility = visibility }, [])
 
 
 
-
+//-------------------------------------
 
 // Local storage interface
 module S =
@@ -198,7 +212,7 @@ module S =
         |> Core.Option.bind (Thoth.Json.Decode.fromString decoder >> function | Ok r -> Some r | _ -> None)
 
     let save (model: Model) =
-        Browser.localStorage.setItem(STORAGE_KEY, Thoth.Json.Encode.Auto.toString(1,model))
+        Browser.localStorage.setItem(STORAGE_KEY, Thoth.Json.Encode.Auto.toString(1, model))
 
 
 let setStorage (model:Model) : Cmd<Msg> =
@@ -207,10 +221,12 @@ let setStorage (model:Model) : Cmd<Msg> =
 let updateWithStorage (msg:Msg) (model:Model) =
   match msg with
   // If the Msg is Failure we know the model hasn't changed
-  | Failure _ -> model, []
-  | _ ->
-    let (newModel, cmds) = update msg model
-    newModel, Cmd.batch [ setStorage newModel; cmds ]
+  | Failure _ -> (model, [])
+  | _         -> let (newModel, cmds) = update msg model
+                 (newModel, Cmd.batch [ setStorage newModel; cmds ])
+
+
+//-------------------------------------
 
 // rendering views with React
 module R = Fable.Helpers.React
@@ -218,17 +234,21 @@ open Fable.Core.JsInterop
 open Fable.Helpers.React.Props
 open Elmish.React
 
+//  Active Patterns are special functions that 
+//  extract information from an object so they 
+//  can be used in pattern matching.
+let (|KeyCode|_|) (e:React.KeyboardEvent) = 
+    Some(e.keyCode)
+
 let internal onEnter msg dispatch =
-    function
-    | (ev:React.KeyboardEvent) when ev.keyCode = ENTER_KEY ->
-        ev.target?value <- ""
-        dispatch msg
-    | _ -> ()
-    |> OnKeyDown
+    OnKeyDown <| function 
+        | KeyCode(ENTER_KEY) as ev -> ev.target?value <- ""
+                                      dispatch msg
+        | _ -> ()
 
 let viewInput (model:string) dispatch =
     R.header [ ClassName "header" ] [
-        R.h1 [] [ R.str "todos" ]
+        R.h1 [] [ R.str "DC Todos" ]
         R.input [
             ClassName "new-todo"
             Placeholder "What needs to be done?"
@@ -239,14 +259,10 @@ let viewInput (model:string) dispatch =
         ]
     ]
 
-
-
-
-
-
+//  Define a helper
 let internal classList classes =
-    classes
-    |> List.fold (fun complete -> function | (name,true) -> complete + " " + name | _ -> complete) ""
+    ("", classes)
+    ||> List.fold (fun complete -> function | (name, true) -> complete + " " + name | _ -> complete)
     |> ClassName
 
 let viewEntry todo dispatch =
@@ -258,13 +274,13 @@ let viewEntry todo dispatch =
             [ ClassName "toggle"
               Type "checkbox"
               Checked todo.completed
-              OnChange (fun _ -> Check (todo.id,(not todo.completed)) |> dispatch) ]
+              OnChange (fun _ -> Check(todo.id, (not todo.completed)) |> dispatch) ]
           R.label
-            [ OnDoubleClick (fun _ -> EditingEntry (todo.id,true) |> dispatch) ]
+            [ OnDoubleClick (fun _ -> EditingEntry(todo.id, true) |> dispatch) ]
             [ R.str todo.description ]
           R.button
             [ ClassName "destroy"
-              OnClick (fun _-> Delete todo.id |> dispatch) ]
+              OnClick (fun _-> Delete(todo.id) |> dispatch) ]
             []
         ]
       R.input
@@ -273,8 +289,8 @@ let viewEntry todo dispatch =
           Name "title"
           Id ("todo-" + (string todo.id))
           OnInput (fun ev -> UpdateEntry (todo.id, !!ev.target?value) |> dispatch)
-          OnBlur (fun _ -> EditingEntry (todo.id,false) |> dispatch)
-          onEnter (EditingEntry (todo.id,false)) dispatch ]
+          OnBlur (fun _ -> EditingEntry (todo.id, false) |> dispatch)
+          onEnter (EditingEntry (todo.id, false)) dispatch ]
     ]
 
 let viewEntries visibility entries dispatch =
@@ -298,7 +314,7 @@ let viewEntries visibility entries dispatch =
             Type "checkbox"
             Name "toggle"
             Checked allCompleted
-            OnChange (fun _ -> CheckAll (not allCompleted) |> dispatch)]
+            OnChange (fun _ -> CheckAll(not allCompleted) |> dispatch)]
         R.label
           [ HtmlFor "toggle-all" ]
           [ R.str "Mark all as complete" ]
@@ -385,6 +401,9 @@ let view model dispatch =
 
 
 //-------------------------------------
+
+//  We start our program here because F# tends to act
+//  act like a one-pass compiler.
 
 open Elmish.Debug
 // App
