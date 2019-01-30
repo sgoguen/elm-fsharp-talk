@@ -1,13 +1,9 @@
-﻿
-
-(**
+﻿(**
  - title: Counter
 *)
 
 module App
 
-
-open Fable.Core.JsInterop
 open Fable.Helpers.React
 open Fable.Helpers.React.Props
 open Elmish
@@ -15,10 +11,10 @@ open Elmish.React
 open Elmish.Debug
 
 
-//  Define the model
+//  *** MODEL ***
 type Model = int
 
-//  We can either increment or decrement our model
+//  *** UPDATE *** 
 type Msg = 
     | Increment
     | Decrement
@@ -29,12 +25,12 @@ let update msg model =
     | Increment -> (model + 1, [])
     | Decrement -> (model - 1, [])
 
-//  Define a view function
+//  *** VIEW ***
 let view (model:Model) dispatch =
     div [] [ 
-        button [ OnClick(fun _ -> Increment |> dispatch) ] [ Text "+" ]
+        button [ OnClick(fun _ -> dispatch(Increment)) ] [ Text "+" ]
         div [] [ Text (string(model)) ]
-        button [ OnClick(fun _ -> Decrement |> dispatch) ] [ Text "-" ]
+        button [ OnClick(fun _ -> dispatch(Decrement)) ] [ Text "-" ]
         ]
 
 
@@ -44,8 +40,7 @@ let view (model:Model) dispatch =
 //  act like a one-pass compiler.
 
 // App
-let init _ = 
-    (0, [])
+let init _ = (0, [])
 
 Program.mkProgram init update view
     |> Program.withReact "counterapp"

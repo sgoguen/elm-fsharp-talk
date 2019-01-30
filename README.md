@@ -1,4 +1,21 @@
-# Elm & F# Talk
+# Elm & F# - A Tale of Two Languages
+
+## Introductions
+
+* Who is Vince?  Why Elm?
+* Who is Steve?  Why F#?
+* Who are you?  Why are you here?
+
+## Agenda
+
+* Tonight is part Show and Tell and Q&A with a loose agenda
+  * It will mostly be question driven, but we'll try to hit the big parts.
+
+* Part 1 - Getting Started with Elm and F# (10-30 minutes)
+* Part 2 - Walking through Todo MVC (10-30 minutes)
+* Part 3 - Elm & F# Difference (10-30 minutes)
+
+-------------------------------------------------------------------------------
 
 ## Part 1 - Getting Started (15 minutes)
 
@@ -14,6 +31,8 @@
   2. Walkthrough of NPM, webpack and dotnet core toolset
   3. Counter example
   
+-------------------------------------------------------------------------------
+
 ## Part 2 - TodoMVC (15-20 minutes)
 
 1. Defining the model in Elm and F# - Side-by-side
@@ -22,24 +41,40 @@
    * Explaining Commands
 3. View Methods
 
+-------------------------------------------------------------------------------
+
 ## Part 3 - Differences (15 - 20 minutes)
 
-* Where Elm Shines
-  * Simple tooling that gets you up and running quickly
-  * Heavy emphasis on reducing runtime errors
+## Where Elm Shines
+  * Simple tooling
+  * Laser focused on *zero* runtime errors
   * Exceptionally fast
   * Curated libraries
-  * Ports
-* Where Elm has yet to shine
+  * Ports - Bridges the impure world of JavaScript with Elm's functional purity
+  * Excellent community!
+
+## Where Elm has yet to shine
   * No backend programming support
-* Where F# Shines
+  * There isn't a curated library for everything
+
+## Where F# Shines
   * Same F# code can be used on both front-end and backend
   * Powerful, yet controlled language and meta-language features
     * Type providers
     * Active Patterns
     * Quotations (Allowing F# to be translated to JavaScript)
-* Where F# can improve
-  * Often too much choice in tooling
+  * Multi-paradigm - 
+  * Fable Compiler
+    * Does an excellent job compiling to clean, readable, idiomatic JavaScript
+    * Can create
+    * Excellent JavaScript inter-op support - Can use [<Emit>] attributes to customize compilation.
+  * SAFE Stack
+    * Provides a lot out-of-the-box
+  * Excellent community!
+
+## Where F# can improve
+  * A lot of choice on tooling (We have 5-6 F# to JavaScript compilers)
+  * Tooling could be slimmer 
   * Many excellent tools, but others could be friendlier to newbs
   * Experience isn't as cultivated
   
