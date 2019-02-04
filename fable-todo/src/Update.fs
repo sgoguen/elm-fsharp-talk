@@ -1,12 +1,7 @@
 module App.Update
 
-
 open App.Model
-
-open Fable.Core
-open Fable.Import
 open Elmish
-
 
 //-------------------------------------
 
@@ -29,17 +24,15 @@ type Msg =
     | CheckAll of bool
     | ChangeVisibility of string
 
-
-
 // How we update our Model on a given Msg?
-let update (msg:Msg) (model:Model) : (Model * Cmd<Msg>) =
+let update (msg:Msg) (model:Model) : Model =
     match msg with
     | Failure err ->
         Fable.Import.Browser.console.error(err)
-        (model, [])
+        model
 
     | Add ->
-        ({ model with
+        { model with
             uid = model.uid + 1
             field = ""
             entries = 
@@ -48,10 +41,10 @@ let update (msg:Msg) (model:Model) : (Model * Cmd<Msg>) =
                 else
 
                     model.entries @ [newEntry model.field model.uid]            
-        }, [])
+        }
     
     | UpdateField str ->
-        ({ model with field = str }, [])
+        { model with field = str }
     
     | EditingEntry (id,isEditing) ->
         let updateEntry t =
@@ -59,29 +52,29 @@ let update (msg:Msg) (model:Model) : (Model * Cmd<Msg>) =
             { t with editing = isEditing } 
           else 
             t
-        ({ model with 
+        { model with 
             entries = 
-              List.map updateEntry model.entries }, [])
+              List.map updateEntry model.entries }
     
     | UpdateEntry (id,task) ->
         let updateEntry t =
           if t.id = id then { t with description = task } else t
-        ({ model with entries = List.map updateEntry model.entries }, [])
+        { model with entries = List.map updateEntry model.entries }
 
     | Delete id ->
-        ({ model with entries = List.filter (fun t -> t.id <> id) model.entries }, [])
+        { model with entries = List.filter (fun t -> t.id <> id) model.entries }
     
     | DeleteComplete ->
-        ({ model with entries = List.filter (fun t -> not t.completed) model.entries }, [])
+        { model with entries = List.filter (fun t -> not t.completed) model.entries }
     
     | Check (id,isCompleted) ->
         let updateEntry t =
           if t.id = id then { t with completed = isCompleted } else t
-        ({ model with entries = List.map updateEntry model.entries }, [])
+        { model with entries = List.map updateEntry model.entries }
 
     | CheckAll isCompleted ->
         let updateEntry t = { t with completed = isCompleted }
-        ({ model with entries = List.map updateEntry model.entries }, [])
+        { model with entries = List.map updateEntry model.entries }
 
     | ChangeVisibility visibility ->
-        ({ model with visibility = visibility }, [])
+        { model with visibility = visibility }

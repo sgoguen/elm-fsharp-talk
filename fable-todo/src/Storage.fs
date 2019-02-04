@@ -29,5 +29,5 @@ let updateWithStorage (msg:Msg) (model:Model) =
   match msg with
   // If the Msg is Failure we know the model hasn't changed
   | Failure _ -> (model, [])
-  | _         -> let (newModel, cmds) = update msg model
+  | _         -> let (newModel, cmds) = ((update msg model), [])
                  (newModel, Cmd.batch [ setStorage newModel; cmds ])

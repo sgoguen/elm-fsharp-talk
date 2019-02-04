@@ -33,8 +33,6 @@ let emptyModel =
       uid = 0 
     }
 
-
-
 (*
 F# allows for type inferencing, but the tools
 often let you see what types have been inferred.
@@ -48,9 +46,6 @@ let newEntry desc id =
     completed = false
     editing = false
     id = id }
-
-
-
 
 let init = function
   | Some(savedModel) -> (savedModel, [])
